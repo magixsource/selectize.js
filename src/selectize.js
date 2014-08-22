@@ -198,6 +198,10 @@ $.extend(Selectize.prototype, {
 				if (e.target === self.$dropdown[0] || e.target.parentNode === self.$dropdown[0]) {
 					return false;
 				}
+                // prevent events on the dropdown 'ignoreMouseDownClass' called (modify by linpeng 2014-8-22)
+                if(self.ignoreMouseDownClass && ($(e.target).hasClass(self.ignoreMouseDownClass) || $(e.target).parents('.'+self.ignoreMouseDownClass).length > 0)){
+                    return false;
+                }
 				// blur on click outside
 				if (!self.$control.has(e.target).length && e.target !== self.$control[0]) {
 					self.blur();
@@ -544,6 +548,11 @@ $.extend(Selectize.prototype, {
 			return false;
 		}
 
+        // Necessary to ignore clicked in $(self.ignoreMouseDownClass) on IE (modify by linpeng 2014-8-21)
+        if($(document.activeElement).hasClass(self.ignoreMouseDownClass) || $(document.activeElement).parents('.'+self.ignoreMouseDownClass).length > 0){
+            return false;
+        }
+
 		if (self.ignoreFocus) return;
 		if (self.settings.preload === 'focus') self.onSearchChange('');
 
@@ -621,7 +630,10 @@ $.extend(Selectize.prototype, {
 			value = $target.attr('data-value');
 			if (typeof value !== 'undefined') {
 				self.lastQuery = null;
-				self.setTextboxValue('');
+                // determine clear or keep input query text (modify by linpeng 2014-8-20)
+                if(!self.isKeepTextBoxValue){
+                    self.setTextboxValue('');
+                }
 				self.addItem(value);
 				if (!self.settings.hideSelected && e.type && /mouse/.test(e.type)) {
 					self.setActiveOption(self.getOption(value));
@@ -713,7 +725,17 @@ $.extend(Selectize.prototype, {
 			this.addItems(value);
 		});
 	},
-
+    /**
+     * Returns item label on the page
+     * Add by linpeng 2014-8-21
+     */
+    getItems: function(){
+        var array = new Array();
+        this.$control.children('.item').each(function(i){
+            array[i]=$(this).html();
+        });
+        return array;
+    },
 	/**
 	 * Sets the selected item.
 	 *
@@ -1083,7 +1105,14 @@ $.extend(Selectize.prototype, {
 			if (triggerDropdown && !self.isOpen) { self.open(); }
 		} else {
 			self.setActiveOption(null);
-			if (triggerDropdown && self.isOpen) { self.close(); }
+            // if (triggerDropdown && self.isOpen) { self.close(); }
+            // Change:determine open or close dropdown content when options is empty by hack(modify by linpeng 2014-8-17)
+            if(self.isOpenDropdownWhenOptionsEmpty){
+                if (triggerDropdown && !self.isOpen) { self.open(); }
+            }else{
+                // default condition close dropdown content
+                if (triggerDropdown && self.isOpen) { self.close(); }
+            }
 		}
 	},
 
