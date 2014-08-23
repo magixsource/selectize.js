@@ -57,7 +57,7 @@ Selectize.define('toolbar_header', function (options) {
                 if (self.settings.mode === 'single') return;
                 // last value should be self.options plus current value
                 var newArray = $.map(self.options, function (obj) {
-                    return obj.value;
+                    return obj[self.settings.valueField];
                 });
                 var oldArray = self.getValue();
                 newArray = oldArray.concat(newArray);
