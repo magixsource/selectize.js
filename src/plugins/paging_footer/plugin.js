@@ -21,6 +21,7 @@ Selectize.define('paging_footer', function (options) {
     self.isKeepTextBoxValue = true;
 
     options = $.extend({
+        pagesize:10,
         html:function (data) {
             return (
                 '<div class="always-fixed">' +
@@ -48,7 +49,7 @@ Selectize.define('paging_footer', function (options) {
             self.$pagination.current_page = 1;
             self.$pagination.url = options.url;
             self.$pagination.query = "";
-            self.$pagination.page_size = 10;
+            self.$pagination.page_size = options.pagesize;
 
             self.$pagination.load = function () {
                 $.support.cors = true;
